@@ -15,10 +15,25 @@ let data = []
 
 // 获取数据列表
 app.get('/list', (req, res) => {
+    const { username, sex, age } = req.query;
+    const filteredData = data.filter(item => {
+        let match = true;
+
+        // 模糊匹配 username，如果传递了 username 参数
+        if (username && !item.username.includes(username)) match = false;
+
+        // 精确匹配 sex，如果传递了 sex 参数
+        if (sex && item.sex !== sex) match = false;
+
+        // 精确匹配 age，如果传递了 age 参数
+        if (age && item.age !== age) match = false;
+
+        return match;
+    });
     res.json({
         code: 200,
         msg: '请求成功',
-        data: data
+        data: filteredData
     })
 })
 
