@@ -16,10 +16,6 @@
         <span style="margin-left: 10px"><button id="search">搜索</button></span>
         <span style="margin-left: 10px"><button id="add">新增</button></span>
       </div>
-      <div>
-        <button id="gett">get请求</button>
-        <button id="postt">post请求</button>
-      </div>
       <table
         width="800px"
         border="1px solid #aac"
@@ -29,136 +25,132 @@
       >
         <thead>
           <tr>
+            <th>用户ID</th>
             <th>用户名称</th>
             <th>性别</th>
             <th>年龄</th>
             <th>操作</th>
           </tr>
         </thead>
-        <tbody id="tbody">
-          <tr id="tfoot">
-            <td colspan="4" align="center">暂无数据</td>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot">
+          <tr>
+            <td colspan="5" align="center">暂无数据</td>
           </tr>
-        </tbody>
+        </tfoot>
       </table>
     </div>
     <script>
-      var tfoot = document.getElementById("tfoot");
-      // 获取列表数据
+      // 查询数据
       getlist();
-      function getlist(username) {
-        fetch(`http://localhost:3000/list?username=${username}`)
+       function getlist() {
+        fetch("http://8.152.220.74:3000/list",{
+          method: "GET",
+          headers:{
+            "Cache-Control": "no-cache",
+          }
+        })
           .then((res) => {
             return res.json();
           })
-          .then((res) => {
-            if (res.data.length <= 0) {
-            } else {
-              tfoot.style.display = "none";
-              console.log(res.data);
-              let tbody = document.getElementById("tbody");
-             
-              res.data.forEach((item) => {
-                let tr = document.createElement("tr");
-                Object.values(item).forEach((value) => {
+          .then((data) => {
+            console.log("data", data);
+            if (data.code == 200) {
+              console.log(data.data.length)
+              let tfoot = document.getElementById("tfoot");
+              if (data.data.length <= 0) {
+                let tbody = document.getElementById("tbody");
+                tbody.innerHTML = ''
+                alert('暂无数据')
+              } else {
+                tfoot.style.display = "none";
+                let tbody = document.getElementById("tbody");
+                tbody.innerHTML = ''
+                console.log(tbody);
+                data.data.forEach((item) => {
+                  console.log('item',item)
+                  let tr = document.createElement("tr");
+                  Object.values(item).forEach((value) => {
+                    let td = document.createElement("td");
+                    td.innerHTML = value;
+                    tr.appendChild(td);
+                  });
                   let td = document.createElement("td");
-                  td.innerHTML = value;
+                  let btn = document.createElement("button");
+                  btn.innerHTML = "删除";
+                  btn.setAttribute("data-id", item.id);
+                  td.appendChild(btn);
                   tr.appendChild(td);
+                  tbody.appendChild(tr);
                 });
-                let btncell = document.createElement("td");
-                let btn = document.createElement("button");
-                btn.innerHTML = "删除";
-                btn.setAttribute("data-toggle", item.username);
-                btncell.appendChild(btn);
-                tr.appendChild(btncell);
-                tbody.appendChild(tr);
-              });
+              }
             }
           });
       }
 
-      document.addEventListener("click", (e) => {
-        console.log(e.target);
-        let flag = e.target.getAttribute("data-toggle");
-        if (flag) {
-          fetch("http://localhost:3000/del", {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username: flag,
-            }),
-          })
-            .then((res) => {
-              return res.json();
-            })
-            .then((res) => {
-              if (res.code === 200) {
-                alert(res.msg);
-                // location.reload()
-              } else {
-                alert(res.msg);
-              }
-            });
-        } else {
-          return;
-        }
-      });
-
-      var add = document.getElementById("add");
+      let add = document.getElementById("add");
       add.addEventListener("click", () => {
-        let username = document.getElementById("username").value;
-        let sex = document.getElementById("sex").value;
-        let age = document.getElementById("age").value;
+        let username = document.getElementById("username").value.trim(); // 去掉多余空格
+        let sex = document.getElementById("sex").value.trim();
+        let age = document.getElementById("age").value.trim();
+        if (!username) {
+          alert("用户名不能为空！");
+          return; // 终止提交
+        }
+
+        if (!sex) {
+          alert("性别不能为空！");
+          return; // 终止提交
+        }
+
+        if (!age) {
+          alert("年龄不能为空！");
+          return; // 终止提交
+        }
 
         fetch("http://8.152.220.74:3000/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          // body: JSON.stringify({
-          //   username,
-          //   sex,
-          //   age,
-          // }),
+          body: JSON.stringify({
+            username,
+            sex,
+            age,
+          }),
         })
           .then((res) => {
             return res.json();
           })
-          .then((res) => {
-            console.log("res", res);
+          .then((data) => {
+            if (data.code == 200) {
+              getlist();
+            }
           });
       });
 
-      var search = document.getElementById("search");
-      search.addEventListener("click", () => {
-        let username = document.getElementById("username").value;
-        getlist(username ? username : 'undefined')
-      });
-
-
-      var gett = document.getElementById("gett")
-      gett.addEventListener('click',()=>{
-        fetch('http://8.152.220.74:3000/api/list').then(res =>{
-          return res.json()
-        }).then( res =>{
-          console.log(res)
-        })
-      })
-
-      var postt = document.getElementById("postt")
-      postt.addEventListener('click',()=>{
-        fetch('http://8.152.220.74:3000/api/list',{
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }).then(res =>{
-          return res.json()
-        }).then( res =>{
-          console.log(res)
-        })
+      document.addEventListener('click',(e)=>{
+        let t = e.target
+        let flag = t.getAttribute('data-id')
+        if(flag) {
+          fetch('http://8.152.220.74:3000/del',{
+            method:'Delete',
+            headers:{
+              'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+              flag
+            })
+          }).then(res =>{
+            return res.json()
+          }).then(data =>{
+            console.log(data)
+            if(data.code == 200) {
+              getlist();
+              alert(data.msg)
+            }
+          })
+        }
       })
     </script>
   </body>
