@@ -79,6 +79,39 @@ app.post('/search', (req, res) => {
     })
 })
 
+// 获取用户详细信息
+app.get('/getlist/:id',(req,res) =>{
+    console.log(req.params)
+    let add 
+    data.forEach((item,index) =>{
+        if(item.id == req.params.id) {
+            add = item
+        }
+    })
+    res.json({
+        code:200,
+        msg:'查询成功',
+        data:add
+    })
+})
+
+// 修改数据
+app.put('/list',(req,res) =>{
+    console.log(req.body)
+    let indexx
+    data.forEach((item,index)=>{
+        if(item.id == req.body.id) {
+            indexx = index
+        }
+    })
+
+    data[indexx] = req.body
+    res.json({
+        code:200,
+        msg:'修改成功'
+    })
+})
+
 app.listen(3000, () => {
     console.log('服务启动成功')
 })

@@ -52,7 +52,7 @@
       getlist();
       function getlist(queryParams = {}) {
         const query = new URLSearchParams(queryParams).toString();
-        fetch(`http://localhost:3000/list?${query}`, {
+        fetch(`http://8.152.220.74:3000/list?${query}`, {
           method: "GET",
           headers: {
             "Cache-Control": "no-cache",
@@ -122,7 +122,7 @@
           return; // 终止提交
         }
 
-        fetch("http://localhost:3000/add", {
+        fetch("http://8.152.220.74:3000/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -152,8 +152,10 @@
       document.addEventListener("click", (e) => {
         let t = e.target;
         let flag = t.getAttribute("data-id");
+        let fla = t.getAttribute('data-d')
+        console.log('fla',fla)
         if (flag) {
-          fetch("http://localhost:3000/del", {
+          fetch("http://8.152.220.74:3000/del", {
             method: "Delete",
             headers: {
               "Content-Type": "application/json",
@@ -173,6 +175,23 @@
               }
             });
         }
+        if(fla) {
+          fetch(`http://8.152.220.74:3000/getlist/${fla}`).then(res =>{
+            return res.json()
+          }).then(data =>{
+            if(data.code == 200) {
+              let add_username = document.getElementById('add_username')
+              let add_sex = document.getElementById('add_sex')
+              let add_age = document.getElementById('add_age')
+              let add_div = document.getElementById('add_div')
+              localStorage.setItem('id',data.data.id)
+              add_username.value = data.data.username
+              add_sex.value = data.data.sex
+              add_age.value = data.data.age
+              add_div.style.display = 'block'
+            }
+          })
+        }
       });
 
       let search = document.getElementById("search");
@@ -182,6 +201,56 @@
         let age = document.getElementById("age").value.trim();
         getlist({ username, sex, age });
       });
+
+      let cancel = document.getElementById('cancel')
+      cancel.addEventListener('click',() =>{
+        let add_div = document.getElementById('add_div')
+        add_div.style.display = 'none'
+      })
+
+      let add_btn = document.getElementById('add_btn')
+      add_btn.addEventListener('click',() =>{
+        let username = document.getElementById("add_username").value.trim(); // 去掉多余空格
+        let sex = document.getElementById("add_sex").value.trim();
+        let age = document.getElementById("add_age").value.trim();
+        if (!username) {
+          alert("用户名不能为空！");
+          return; // 终止提交
+        }
+
+        if (!sex) {
+          alert("性别不能为空！");
+          return; // 终止提交
+        }
+
+        if (!age) {
+          alert("年龄不能为空！");
+          return; // 终止提交
+        }
+        let idd = localStorage.getItem('id')
+        fetch('http://8.152.220.74:3000/list',{
+          method:'PUT',
+          headers:{
+            "content-type":"application/json"
+          },
+          
+          body:JSON.stringify({
+            id:Number(idd),
+            username,
+            sex,
+            age,
+            
+          })
+        }).then((res) =>{
+          return res.json()
+        }).then(data =>{
+          if(data.code == 200) {
+            getlist();
+            let add_div = document.getElementById('add_div')
+        add_div.style.display = 'none'
+          }
+        })
+      })
     </script>
   </body>
   <style>
