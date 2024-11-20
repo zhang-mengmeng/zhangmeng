@@ -11,6 +11,9 @@ app.use('*',(req,res,next) =>{
 
 app.use(express.json())
 
+let data = []
+
+
 // 获取数据列表
 app.get('/list',(req,res)=>{
     fs.readFile('server/data/data.json', {
@@ -63,26 +66,9 @@ app.delete('/del',(req,res) =>{
 
 // 新增数据
 app.post('/add',(req,res) =>{
-    fs.readFile('server/data/data.json',{
-        encoding: 'utf8',
-        flag:'r+'
-    },(err,data) =>{
-        if(err) return err
-        if(JSON.parse(data).length == 0) {
-            fs.writeFile('server/data/data.json',JSON.stringify([req.body]),(err)=>{
-
-            })
-        }else {
-            fs.writeFile('server/data/data.json',JSON.stringify([...JSON.parse(data),req.body]),(err,data) =>{
-                if(!err) {
-                    res.json({
-                        code:200,
-                        msg:'新增成功'
-                    })
-                }
-            })
-        }
-    })
+    const generateId = () => Math.floor(Math.random() * 10000)
+    res.send(generateId)
+    // const newItem = {id:data.length + 1,...req.body}
 })
 
 // 查询数据
