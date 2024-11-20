@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div style="width: 800px; margin: 0 auto">
+      <div style="margin: 10px">
+        <span style="margin-left: -10px"
+          >用户名称: <input type="text" id="username"
+        /></span>
+        <span>性别: <input type="text" id="sex" /></span>
+        <span>年龄: <input type="text" id="age" /></span>
+        <span style="margin-left: 10px"><button id="search">搜索</button></span>
+        <span style="margin-left: 10px"><button id="add">新增</button></span>
+      </div>
+      <table
+        width="800px"
+        border="1px solid #aac"
+        cellspacing="0"
+        cellpadding="0"
+        align="center"
+      >
+        <thead>
+          <tr>
+            <th>用户名称</th>
+            <th>性别</th>
+            <th>年龄</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr id="tfoot">
+            <td colspan="4" align="center">暂无数据</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      var tfoot = document.getElementById("tfoot");
+      // 获取列表数据
+      getlist();
+      function getlist(username) {
+        fetch(`http://localhost:3000/list?username=${username}`)
+          .then((res) => {
+            return res.json();
+          })
+          .then((res) => {
+            if (res.data.length <= 0) {
+            } else {
+              tfoot.style.display = "none";
+              console.log(res.data);
+              let tbody = document.getElementById("tbody");
+             
+              res.data.forEach((item) => {
+                let tr = document.createElement("tr");
+                Object.values(item).forEach((value) => {
+                  let td = document.createElement("td");
+                  td.innerHTML = value;
+                  tr.appendChild(td);
+                });
+                let btncell = document.createElement("td");
+                let btn = document.createElement("button");
+                btn.innerHTML = "删除";
+                btn.setAttribute("data-toggle", item.username);
+                btncell.appendChild(btn);
+                tr.appendChild(btncell);
+                tbody.appendChild(tr);
+              });
+            }
+          });
+      }
+
+      document.addEventListener("click", (e) => {
+        console.log(e.target);
+        let flag = e.target.getAttribute("data-toggle");
+        if (flag) {
+          fetch("http://localhost:3000/del", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username: flag,
+            }),
+          })
+            .then((res) => {
+              return res.json();
+            })
+            .then((res) => {
+              if (res.code === 200) {
+                alert(res.msg);
+                // location.reload()
+              } else {
+                alert(res.msg);
+              }
+            });
+        } else {
+          return;
+        }
+      });
+
+      var add = document.getElementById("add");
+      add.addEventListener("click", () => {
+        let username = document.getElementById("username").value;
+        let sex = document.getElementById("sex").value;
+        let age = document.getElementById("age").value;
+
+        fetch("http://localhost:3000/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            sex,
+            age,
+          }),
+        })
+          .then((res) => {
+            return res.json();
+          })
+          .then((res) => {
+            console.log("res", res);
+          });
+      });
+
+      var search = document.getElementById("search");
+      search.addEventListener("click", () => {
+        let username = document.getElementById("username").value;
+        getlist(username ? username : 'undefined')
+      });
+    </script>
+  </body>
+</html>
