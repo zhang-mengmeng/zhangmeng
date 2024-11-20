@@ -16,6 +16,10 @@
         <span style="margin-left: 10px"><button id="search">搜索</button></span>
         <span style="margin-left: 10px"><button id="add">新增</button></span>
       </div>
+      <div>
+        <button id="gett">get请求</button>
+        <button id="postt">post请求</button>
+      </div>
       <table
         width="800px"
         border="1px solid #aac"
@@ -108,16 +112,16 @@
         let sex = document.getElementById("sex").value;
         let age = document.getElementById("age").value;
 
-        fetch("http://localhost:3000/add", {
+        fetch("http://8.152.220.74:3000/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            username,
-            sex,
-            age,
-          }),
+          // body: JSON.stringify({
+          //   username,
+          //   sex,
+          //   age,
+          // }),
         })
           .then((res) => {
             return res.json();
@@ -132,6 +136,30 @@
         let username = document.getElementById("username").value;
         getlist(username ? username : 'undefined')
       });
+
+
+      var gett = document.getElementById("gett")
+      gett.addEventListener('click',()=>{
+        fetch('http://8.152.220.74:3000/api/list').then(res =>{
+          return res.json()
+        }).then( res =>{
+          console.log(res)
+        })
+      })
+
+      var postt = document.getElementById("postt")
+      postt.addEventListener('click',()=>{
+        fetch('http://8.152.220.74:3000/api/list',{
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then(res =>{
+          return res.json()
+        }).then( res =>{
+          console.log(res)
+        })
+      })
     </script>
   </body>
 </html>

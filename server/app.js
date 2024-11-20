@@ -87,6 +87,20 @@ app.post('/search',(req,res) =>{
     })
 })
 
+app.get('/api/list',(req,res) =>{
+    res.json({
+        code:200,
+        msg:'查询成功',
+    })
+})
+
+app.post('/api/list',(req,res) =>{
+    res.json({
+        code:200,
+        msg:'查询成功',
+    })
+})
+
 app.listen(3000,()=>{
     console.log('服务启动成功')
 })
