@@ -1,4 +1,7 @@
 import express from 'express';
+import fs from "node:fs"
+import path from 'path';
+
 const app = express();
 
 app.use('*', (req, res, next) => {
@@ -9,6 +12,12 @@ app.use('*', (req, res, next) => {
 })
 
 app.use(express.json())
+console.log(path.join(process.cwd(),'./dataa.json'))
+fs.readFile(path.join(process.cwd(), './dataa.json'), {
+    encoding: 'utf8',
+}, (err, data) => {
+    console.log(JSON.parse(data))
+})
 
 let data = []
 
@@ -80,35 +89,35 @@ app.post('/search', (req, res) => {
 })
 
 // 获取用户详细信息
-app.get('/getlist/:id',(req,res) =>{
+app.get('/getlist/:id', (req, res) => {
     console.log(req.params)
-    let add 
-    data.forEach((item,index) =>{
-        if(item.id == req.params.id) {
+    let add
+    data.forEach((item, index) => {
+        if (item.id == req.params.id) {
             add = item
         }
     })
     res.json({
-        code:200,
-        msg:'查询成功',
-        data:add
+        code: 200,
+        msg: '查询成功',
+        data: add
     })
 })
 
 // 修改数据
-app.put('/list',(req,res) =>{
+app.put('/list', (req, res) => {
     console.log(req.body)
     let indexx
-    data.forEach((item,index)=>{
-        if(item.id == req.body.id) {
+    data.forEach((item, index) => {
+        if (item.id == req.body.id) {
             indexx = index
         }
     })
 
     data[indexx] = req.body
     res.json({
-        code:200,
-        msg:'修改成功'
+        code: 200,
+        msg: '修改成功'
     })
 })
 
